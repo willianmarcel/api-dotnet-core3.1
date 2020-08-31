@@ -18,11 +18,11 @@ namespace Api.Service.Services
         private readonly IUserRepository _repository;
         private SigningConfigurations _signingConfigurations;
         private TokenConfigurations _tokenConfigurations;
-        private IConfiguration _configuration{ get; }
+        private IConfiguration _configuration { get; }
 
         public LoginService(
-            IUserRepository repository, 
-            SigningConfigurations signingConfigurations, 
+            IUserRepository repository,
+            SigningConfigurations signingConfigurations,
             TokenConfigurations tokenConfigurations,
             IConfiguration configuration)
         {
@@ -36,16 +36,17 @@ namespace Api.Service.Services
         {
             var baseUser = new UserEntity();
 
-            if(login != null && !string.IsNullOrWhiteSpace(login.Email))
+            if (login != null && !string.IsNullOrWhiteSpace(login.Email))
             {
                 baseUser = await _repository.FindByLogin(login.Email);
 
-                if(baseUser == null)
-                    return new { 
+                if (baseUser == null)
+                    return new
+                    {
                         authenticated = false,
                         message = "Falha ao autenticar"
                     };
-                
+
                 var identity = new ClaimsIdentity(
                     new GenericIdentity(baseUser.Email),
                     new[]
@@ -63,9 +64,12 @@ namespace Api.Service.Services
 
                 return SuccessObject(createDate, expirationDate, token, login);
             }
-                
-            
-            return null;
+
+            return new
+            {
+                authenticated = false,
+                message = "Falha ao autenticar"
+            };
         }
 
         private string CreateToken(ClaimsIdentity identity, DateTime createDate, DateTime expirationDate, JwtSecurityTokenHandler handler)
@@ -86,7 +90,8 @@ namespace Api.Service.Services
 
         private object SuccessObject(DateTime createDate, DateTime expirationDate, string token, LoginDto user)
         {
-            return new {
+            return new
+            {
                 authenticated = true,
                 created = createDate.ToString("yyyy-MM-dd HH:mm:ss"),
                 expiration = expirationDate.ToString("yyyy-MM-dd HH:mm:ss"),

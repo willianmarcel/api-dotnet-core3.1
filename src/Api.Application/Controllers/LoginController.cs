@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Api.Domain.Dtos;
 using Api.Domain.Interfaces.Services.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Application.Controllers
@@ -18,10 +19,11 @@ namespace Api.Application.Controllers
             this._service = service;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto login)
         {
-            if(!ModelState.IsValid || login == null)
+            if (!ModelState.IsValid || login == null)
             {
                 return BadRequest(ModelState);
             }
@@ -30,14 +32,14 @@ namespace Api.Application.Controllers
             {
                 var result = await _service.FindByLogin(login);
 
-                if(result != null)
+                if (result != null)
                     return Ok(result);
-                
+
                 return NotFound();
             }
             catch (ArgumentException e)
             {
-                return StatusCode ((int) HttpStatusCode.InternalServerError, e.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
     }

@@ -3,7 +3,8 @@ using System;
 using System.Threading.Tasks;
 using Api.Domain.Interfaces.Services.Users;
 using Microsoft.AspNetCore.Mvc;
-using Api.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Api.Domain.Dtos;
 
 namespace Api.Application.Controllers
 {
@@ -17,11 +18,12 @@ namespace Api.Application.Controllers
         {
             this._service = service;
         }
-        
+
+        [Authorize("Bearer")]
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -32,15 +34,16 @@ namespace Api.Application.Controllers
             }
             catch (ArgumentException e)
             {
-                return StatusCode ((int) HttpStatusCode.InternalServerError, e.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
 
+        [Authorize("Bearer")]
         [HttpGet]
-        [Route("{id}", Name="GetWithId")]
+        [Route("{id}", Name = "GetWithId")]
         public async Task<ActionResult> GetById(Guid id)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -51,14 +54,15 @@ namespace Api.Application.Controllers
             }
             catch (ArgumentException e)
             {
-                return StatusCode ((int) HttpStatusCode.InternalServerError, e.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
 
+        [Authorize("Bearer")]
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] UserEntity user)
+        public async Task<ActionResult> Post([FromBody] UserDtoCreate user)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -66,22 +70,23 @@ namespace Api.Application.Controllers
             try
             {
                 var result = await _service.Post(user);
-                
-                if(result != null)
-                    return Created(new Uri(Url.Link("GetWithId", new {id = result.Id})), result);
-                
+
+                if (result != null)
+                    return Created(new Uri(Url.Link("GetWithId", new { id = result.Id })), result);
+
                 return BadRequest();
             }
             catch (ArgumentException e)
             {
-                return StatusCode ((int) HttpStatusCode.InternalServerError, e.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
 
+        [Authorize("Bearer")]
         [HttpPut]
-        public async Task<ActionResult> Put([FromBody] UserEntity user)
+        public async Task<ActionResult> Put([FromBody] UserDtoUpdate user)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -89,22 +94,23 @@ namespace Api.Application.Controllers
             try
             {
                 var result = await _service.Put(user);
-                
-                if(result != null)
+
+                if (result != null)
                     return Ok(result);
-                
+
                 return BadRequest();
             }
             catch (ArgumentException e)
             {
-                return StatusCode ((int) HttpStatusCode.InternalServerError, e.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
 
+        [Authorize("Bearer")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -115,7 +121,7 @@ namespace Api.Application.Controllers
             }
             catch (ArgumentException e)
             {
-                return StatusCode ((int) HttpStatusCode.InternalServerError, e.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
     }
